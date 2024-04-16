@@ -37,7 +37,7 @@ public class AnimalController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult UpdateAnimal([FromBody] CreateAnimalDTO dto)
+    public IActionResult UpdateAnimal([FromBody] UpdateAnimalDTO dto)
     {
         //TODO: validate dto?
         //TODO: make input JSON
@@ -49,7 +49,7 @@ public class AnimalController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult DeleteAnimal()
+    public IActionResult DeleteAnimal([FromRoute] int idAnimal)
     {
         var success = true; //TODO: delete in DB, maybe 404 if not found?
         return success ? StatusCode(StatusCodes.Status200OK) : Conflict();
