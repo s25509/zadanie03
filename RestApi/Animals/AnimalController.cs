@@ -4,21 +4,20 @@ namespace RestApi.Animals;
 
 [ApiController]
 [Route("/api/animals")]
-public class AnimalController : ControllerBase
+public class AnimalController(IAnimalRepository repository) : ControllerBase
 {
     [HttpGet("")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult GetAllAnimals([FromQuery] string? orderBy)
     {
-        orderBy ??= "name";
-        string[] validOrderParameters = ["name", "description", "category", "area"];
-        if (!validOrderParameters.Contains(orderBy))
+        orderBy ??= "Name";
+        if (!AnimalRepository.ValidOrderParameters.Contains(orderBy))
         {
-            return BadRequest("Cannot sort by: " + orderBy);
+            return BadRequest($"Cannot sort by: {orderBy}");
         }
 
-        var animals = "All Animals"; //TODO: fetch from DB, order by orderBy ASC
+        var animals = repository.FetchAllAnimals(orderBy); //TODO: procure via service
         return Ok(animals);
     }
 
@@ -29,7 +28,7 @@ public class AnimalController : ControllerBase
     {
         //TODO: validate dto?
         //TODO: make input JSON2 (application/*+json ?)
-        var success = true; //TODO: save in DB
+        var success = repository.CreateAnimal(dto.Name,dto.Description,dto.Category,dto.Area); //TODO: create via service
         return success ? StatusCode(StatusCodes.Status201Created) : Conflict();
     }
 
@@ -41,7 +40,7 @@ public class AnimalController : ControllerBase
     {
         //TODO: validate dto?
         //TODO: make input JSON
-        var success = true; //TODO: update in DB, maybe 404 if not found?
+        var success = true; //TODO: add method to repository, maybe return a 404 if Animal not found?
         return success ? StatusCode(StatusCodes.Status200OK) : Conflict();
     }
 
@@ -51,7 +50,7 @@ public class AnimalController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult DeleteAnimal([FromRoute] int idAnimal)
     {
-        var success = true; //TODO: delete in DB, maybe 404 if not found?
+        var success = true; //TODO: add method to repository, maybe return a 404 if Animal not found?
         return success ? StatusCode(StatusCodes.Status200OK) : Conflict();
     }
 }
