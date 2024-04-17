@@ -4,7 +4,7 @@ namespace RestApi.Animals;
 
 [ApiController]
 [Route("/api/animals")]
-public class AnimalController(IAnimalRepository repository) : ControllerBase
+public class AnimalController(IAnimalService service) : ControllerBase
 {
     [HttpGet("")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -17,7 +17,7 @@ public class AnimalController(IAnimalRepository repository) : ControllerBase
             return BadRequest($"Cannot sort by: {orderBy}");
         }
 
-        var animals = repository.FetchAllAnimals(orderBy); //TODO: procure via service
+        var animals = service.GetAllAnimals(orderBy);
         return Ok(animals);
     }
 
@@ -28,8 +28,8 @@ public class AnimalController(IAnimalRepository repository) : ControllerBase
     {
         //TODO: validate dto?
         //TODO: make input JSON2 (application/*+json ?)
-        var success = repository.CreateAnimal(dto.Name,dto.Description,dto.Category,dto.Area); //TODO: create via service
-        return success ? StatusCode(StatusCodes.Status201Created) : Conflict();
+        var success = service.AddAnimal(dto);
+        return success ? StatusCode(StatusCodes.Status201Created, dto) : Conflict();
     }
 
     [HttpPut("{idAnimal:int}")]
@@ -51,6 +51,6 @@ public class AnimalController(IAnimalRepository repository) : ControllerBase
     public IActionResult DeleteAnimal([FromRoute] int idAnimal)
     {
         var success = true; //TODO: add method to repository, maybe return a 404 if Animal not found?
-        return success ? StatusCode(StatusCodes.Status200OK) : Conflict();
+        return success ? StatusCode(StatusCodes.Status200OK, $"Removed Animal with id: {idAnimal}") : Conflict();
     }
 }
