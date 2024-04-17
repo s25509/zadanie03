@@ -11,7 +11,7 @@ public class AnimalController(IAnimalRepository repository) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult GetAllAnimals([FromQuery] string? orderBy)
     {
-        orderBy ??= "Name";
+        orderBy ??= "name";
         if (!AnimalRepository.ValidOrderParameters.Contains(orderBy))
         {
             return BadRequest($"Cannot sort by: {orderBy}");

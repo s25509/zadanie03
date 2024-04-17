@@ -11,7 +11,7 @@ public interface IAnimalRepository
 
 public class AnimalRepository(IConfiguration configuration) : IAnimalRepository
 {
-    public static readonly string[] ValidOrderParameters = ["Name", "description", "category", "area"];
+    public static readonly string[] ValidOrderParameters = ["name", "description", "category", "area"];
 
     public IEnumerable<Animal> FetchAllAnimals(string orderBy)
     {
@@ -19,7 +19,7 @@ public class AnimalRepository(IConfiguration configuration) : IAnimalRepository
         connection.Open();
 
         // Already checked in Controller, but better safe than sorry
-        var safeOrderBy = ValidOrderParameters.Contains(orderBy) ? orderBy : "Name";
+        var safeOrderBy = ValidOrderParameters.Contains(orderBy) ? orderBy : "name";
         var command = new SqlCommand($"SELECT * FROM Animal ORDER BY {safeOrderBy}", connection);
         using var reader = command.ExecuteReader();
 
@@ -45,11 +45,18 @@ public class AnimalRepository(IConfiguration configuration) : IAnimalRepository
         using var connection = new SqlConnection(configuration["ConnectionStrings:DefaultConnection"]);
         connection.Open();
 
-        using var command = new SqlCommand("INSERT INTO Animal (Email) VALUES (@name, @description, @category, @area)", connection);
+        using var command = new SqlCommand("INSERT INTO Animal (name, description, category, area) VALUES (@name, @description, @category, @area)", connection);
         command.Parameters.AddWithValue("@name", name);
-        command.Parameters.AddWithValue("@description", description);
         command.Parameters.AddWithValue("@category", category);
         command.Parameters.AddWithValue("@area", area);
+        if (description != null)
+        {
+            command.Parameters.AddWithValue("@description", description);
+        }
+        else
+        {
+            command.Parameters.AddWithValue("@description", DBNull.Value);
+        }
         var affectedRows = command.ExecuteNonQuery();
         
         return affectedRows == 1;
